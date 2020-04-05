@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="bd3">
+<head>
+    <title>Planets</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.8/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.8/angular-route.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.8/angular-sanitize.js"></script>
+    <script src="scripts/module.js"></script>
+    <script src="scripts/homeController.js"></script>
+    <script src="scripts/addController.js"></script>
+    <style>
+        .fakeimg {
+            height: 200px;
+            background: #aaa;
+        }
+        .nav-link#showSucces {
+            color: greenyellow;
+        }
+        .nav-link#showError {
+            color: red;
+        }
+    </style>
+</head>
+<body ng-controller="ctrlHome">
+
+
+<div class="jumbotron text-center" style="margin-bottom:0">
+    <h1>Bazy Danych 2019/20</h1>
+</div>
+
+<nav class="navbar navbar-expand-sm bg-dark navbar-dark">
+    <a class="navbar-brand" href="#">Navbar</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="collapsibleNavbar">
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a type="button" class="nav-link" ng-click="loadTable('Object')">Objects</a>
+            </li>
+            <li class="nav-item">
+                <a type="button" class="nav-link" ng-click="loadTable('DB_User')">Users</a>
+            </li>
+            <li class="nav-item">
+                <a type="button" class="nav-link" ng-click="loadTable('List')">Lists</a>
+             </li>
+            <li class="nav-item">
+                <a type="button" class="nav-link" ng-click="loadTable('Organization')">Organizations</a>
+            </li>
+            <li class="nav-link" id="showSucces" ng-show="msgApiSuccess != ''"><span s>{{msgApiSucces}}</span></li>
+            <li class="nav-link" id="showError" ng-show="msgApiError != ''"><span s>{{msgApiError}}</span></li>
+        </ul>
+    </div>
+</nav>
+
+<div class="container" style="margin-top:30px" ng-if="current != ''">
+    <!--options-->
+    <div class="card">
+        <div class="card-header">
+            Options
+        </div>
+        <div class="card-body">
+            <div class="form-row">
+                <div class="col">
+                    <input type="text" class="form-control" ng-model="filter" placeholder="Filter">
+                </div>
+                <div class="col">
+                    <button type="button" data-toggle="modal" data-target="#addObjectModal" ng-click="getForms(current)">Add new</button>
+                </div>
+                <div class="col">
+                    <button type="button" ng-click="remDesc()">Hide details</button>
+                </div>
+            </div>
+        </div>
+<!--        <div class="card-footer">{{newRecord | json}}{{filter | json}}{{selected}}{{desc}}</div>-->
+    </div>
+    <div class="row">
+<!--currently displayed items-->
+        <div class="col-md-6">
+            <table class="table table-hover" ng-show="current != ''">
+            <thead>
+                <th>Id</th>
+                <th>Name</th>
+                <th ng-if="current == 'Object'">Type</th>
+            </thead>
+            <tbody>
+                <tr ng-repeat="row in cur | byName:filter" ng-click="select(row)" style="cursor: pointer">
+                    <td>{{row.Id}}</td>
+                    <td>{{row.Name}}</td>
+                    <td ng-if="current == 'Object'">{{row.Type}}</td>
+<!--                    <td ng-click="select(row)">details</td>-->
+                </tr>
+            </tbody>
+        </table>
+        </div>
+<!--item description box-->
+        <div class="col-md-6" style="margin-top: 15px">
+            <div class="card" ng-if="desc">
+                <div class="card-header" >
+                    <div class="row" style="justify-content: space-between">
+                        <div style="margin-left: 20px">Details of {{selected.Name}}</div>
+                        <button class="waves-button" ng-click="removeRecord()">DELETE</button>
+                    </div>
+                </div>
+                <!--    common part (fields and delete)-->
+                <div class="card-body" ng-if="current != 'List' && selected.Type != 'Exoplanet'">
+                    <ul>
+                        <li ng-repeat="field in selKeys">
+                            {{field}}: {{selected[field]}}
+                        </li>
+                    </ul>
+                </div>
+                <!--        list details-->
+                <div class="card-body" ng-if="current == 'List'">
+                    <button class="waves-button" ng-click="showList()">{{listStatus}}</button>
+                    <div ng-if="listStatus == 'Hide'">
+                        <!--                actual list-->
+                        <table class="table table-hover table-sm">
+                            <thead>
+                            <th>nr</th>
+                            <th>Name</th>
+                            </thead>
+                            <tbody>
+                            <tr ng-repeat="row in list">
+                                <td>{{row.Place}}</td>
+                                <td>{{row.Name}}</td>
+                                <td class="btn-link" ng-click="deleteFromList(row)" style="cursor: pointer">
+                                    <button> <span>delete</span></button>
+
+
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <button class="waves-button" ng-click="showAdd(0)" ng-show="adding == false">ADD</button>
+                        <div ng-show="adding == true">
+                            <!--                    add new item to list-->
+                            <button class="waves-button" ng-click="showAdd(1)">CANCEL</button>
+                            <input type="text" class="form-control" ng-model="filter2" placeholder="Filter">
+                            <table class="table table-hover table-sm" style="cursor: pointer">
+                                <thead>
+                                <th>Name</th>
+                                <th>Type</th>
+                                </thead>
+                                <tbody>
+                                <tr ng-repeat="row in listAdd | byName:filter2 | woRepeats:list">
+                                    <td ng-click="addToList(row)">{{row.Name}}</td>
+                                    <td ng-click="addToList(row)">{{row.Type}}</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <!--        Object details-->
+                <div class="card-body" ng-if="current == 'Object'">
+<!--                    TODO add modify obj-->
+                    <div class="card-body" ng-if="selected.Type == 'Exoplanet'">
+                        <ul>
+                            <li ng-repeat="field in exoK">
+                                {{field}}: {{exo[field]}}
+                            </li>
+                        </ul>
+                    </div>
+                    <button ng-click="getChildren()" ng-show="selected.Type != 'Exoplanet'">Show Children</button>
+                    <div class="card-body" ng-if="children">
+                        <ul>
+                            <li ng-repeat="field in child">
+                                {{field.Name}}
+                            </li>
+                        </ul>
+                    </div>
+<!--                    TODO put hierarchy to use-->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--new Object box-->
+<div class="container">
+    <div class="modal" tabindex="-1" role="dialog" id="addObjectModal">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content" ng-controller="ctrlAdd">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add new {{current}}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div dirc link="Object" ng-if="current == 'Object'"></div>
+                <div dirc link="List" ng-if="current == 'List'"></div>
+                <div dirc link="DB_User" ng-if="current == 'DB_User'"></div>
+                <div dirc link="Organization" ng-if="current == 'Organization'"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" ng-click="addItem(current)" data-dismiss="modal">Save</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

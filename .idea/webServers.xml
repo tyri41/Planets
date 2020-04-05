@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="9b4aacc0-dd31-4d04-a29c-2aea71391862" name="Planets" url="http://Planets">
+        <fileTransfer port="0" accessType="LOCAL" />
+      </webServer>
+      <webServer id="56403652-9c29-43e1-8d7f-c85a5862a10e" name="bd3" url="http://localhost">
+        <fileTransfer port="0" mountedRoot="$USER_HOME$/Desktop/bd3_server" accessType="MOUNT" />
+      </webServer>
+    </option>
+  </component>
+</project>

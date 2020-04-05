@@ -1,0 +1,32 @@
+<div class="modal-body">
+    <div class="form-group">
+        <label for="formGroupName">Name</label>
+        <input type="text" class="form-control" required ng-model="newRecord.Name" id="formGroupName" placeholder="Sun">
+    </div>
+    <div class="form-group">
+        <label for="exampleFormControlSelect1">Type</label>
+        <select class="form-control" required ng-model="newRecord.Type" id="exampleFormControlSelect1" ng-change="setHostList()">
+            <option>Exoplanet</option>
+            <option>Star</option>
+            <option>Constellation</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="formGroupRAsc">Right Ascention</label>
+        <input type="text" class="form-control" required ng-model="newRecord.RAscention" id="formGroupRAsc" placeholder="0">
+    </div>
+    <div class="form-group">
+        <label for="formGroupDec">Declination</label>
+        <input type="text" class="form-control" required ng-model="newRecord.Declination" id="formGroupDec" placeholder="0">
+    </div>
+    <div class="form-group">
+        <label for="formGroupDist">Distance</label>
+        <input type="text" class="form-control" required ng-model="newRecord.Distance" id="formGroupDist" placeholder="0">
+    </div>
+    <div class="form-group" ng-if="newRecord.Type">
+        <label for="exampleFormControlSelect2">Host</label>
+        <select class="form-control" required ng-model="newRecord.Host" id="exampleFormControlSelect2" ng-options="row.Id as row.Name for row in hosts">
+<!--            <option ng-repeat="row in hosts">{{row.Name}}</option>-->
+        </select>
+    </div>
+</div>
